@@ -14,6 +14,13 @@ import { Button } from "./ui/button";
 import { LogOut } from "lucide-react";
 import NavItems from "./NavItems";
 
+/**
+ * Renders a user avatar trigger that opens a dropdown containing the user's info, navigation links, and a Sign Out action.
+ *
+ * The Sign Out item navigates the user to "/sign-in" when clicked.
+ *
+ * @returns A React element representing the user dropdown menu.
+ */
 function UserDropdown() {
   const router = useRouter();
 
