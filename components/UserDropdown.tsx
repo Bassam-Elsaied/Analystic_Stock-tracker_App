@@ -78,13 +78,6 @@ function UserDropdown() {
           <LogOut className="size-4 mr-2 hidden sm:block" />
           Sign Out
         </DropdownMenuItem>
-
-        {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {navItems.map((item) => (
-          <DropdownMenuItem key={item.label}>{item.label}</DropdownMenuItem>
-        ))}
-        <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
