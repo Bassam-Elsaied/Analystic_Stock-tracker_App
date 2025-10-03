@@ -4,6 +4,11 @@ import React from "react";
 import NavItems from "./NavItems";
 import UserDropdown from "./UserDropdown";
 
+/**
+ * Renders the top sticky header containing the logo, responsive navigation, and user dropdown.
+ *
+ * @returns A header element with a home-link logo image, navigation items for larger viewports, and a user dropdown menu.
+ */
 function Header() {
   return (
     <header className="header sticky top-0">
