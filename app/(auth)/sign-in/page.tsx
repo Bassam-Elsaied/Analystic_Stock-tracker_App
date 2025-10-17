@@ -3,10 +3,14 @@
 import FooterLink from "@/components/forms/FooterLink";
 import InputFields from "@/components/forms/InputFields";
 import { Button } from "@/components/ui/button";
+import { signInWithEmail } from "@/lib/actions/auth-action";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 function SignIn() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -20,7 +24,13 @@ function SignIn() {
   });
 
   const onSubmit = async (data: SignInFormData) => {
-    console.log(data);
+    const response = await signInWithEmail(data);
+    if (response.success) {
+      toast.success(response.message);
+      router.push("/");
+    } else {
+      toast.error(response.message);
+    }
   };
 
   return (

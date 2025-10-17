@@ -11,8 +11,13 @@ import {
 } from "@/lib/data";
 import { useForm } from "react-hook-form";
 import FooterLink from "@/components/forms/FooterLink";
+import { signUpWithEmail } from "@/lib/actions/auth-action";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 function SignUp() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -33,8 +38,16 @@ function SignUp() {
 
   const onSubmit = async (data: SignUpFormData) => {
     try {
+      const response = await signUpWithEmail(data);
+      if (response.success) {
+        toast.success(response.message);
+        router.push("/");
+      } else {
+        toast.error(response.message);
+      }
     } catch (error) {
       console.log(error);
+      toast.error("Sign up with email failed");
     }
   };
 

@@ -1,14 +1,23 @@
+import { auth } from "@/lib/better-auth/auth";
+import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-function layout({ children }: { children: React.ReactNode }) {
+async function layout({ children }: { children: React.ReactNode }) {
+  const authInstance = await auth;
+  const session = await authInstance.api.getSession({
+    headers: await headers(),
+  });
+  if (session?.user) redirect("/");
+
   return (
     <main className="auth-layout">
       <section className="auth-left-section scrollbar-hide-default">
         <Link href="/" className="auth-logo">
           <Image
             src="/assets/images/logo.png"
-            alt="Stocklytics"
+            alt="Signalist"
             width={140}
             height={32}
             className="h-8 w-auto cursor-pointer"
@@ -19,7 +28,7 @@ function layout({ children }: { children: React.ReactNode }) {
       <section className="auth-right-section">
         <div className="z-10 relative lg:mt-4 lg:mb-16">
           <blockquote className="auth-blockquote">
-            Stocklytics turned my watchlist into a winning list. The alerts are
+            Signalist turned my watchlist into a winning list. The alerts are
             spot-on, and I feel more confident making moves in the market
           </blockquote>
           <div className="flex items-center justify-between ">
@@ -45,7 +54,7 @@ function layout({ children }: { children: React.ReactNode }) {
         <div className="flex-1 relative">
           <Image
             src="/assets/images/dashboard.png"
-            alt="Stocklytics"
+            alt="Signalist"
             width={1440}
             height={1150}
             className="auth-dashboard-preview absolute top-0"

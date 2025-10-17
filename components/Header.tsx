@@ -11,7 +11,7 @@ function Header() {
         <Link href="/">
           <Image
             src="/assets/images/logo.png"
-            alt="Stocklytics"
+            alt="Signalist"
             width={140}
             height={32}
             className="h-8 w-auto cursor-pointer "
