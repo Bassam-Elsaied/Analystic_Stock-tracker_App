@@ -31,6 +31,11 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
       </main>
     );
   } catch (error) {
+    // Re-throw redirect errors (they're not actual errors)
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
+    }
+    
     console.error("Root layout error:", error);
     redirect("/sign-in");
   }

@@ -15,6 +15,10 @@ async function layout({ children }: { children: React.ReactNode }) {
     });
     if (session?.user) redirect("/");
   } catch (error) {
+    // Re-throw redirect errors (they're not actual errors)
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
+    }
     console.error("Auth layout error:", error);
     // Allow rendering even if auth check fails
   }

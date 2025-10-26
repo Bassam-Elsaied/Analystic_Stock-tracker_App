@@ -26,6 +26,10 @@ export default async function SettingsPage() {
       </div>
     );
   } catch (error) {
+    // Re-throw redirect errors (they're not actual errors)
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
+    }
     console.error("Settings page error:", error);
     redirect("/sign-in");
   }
