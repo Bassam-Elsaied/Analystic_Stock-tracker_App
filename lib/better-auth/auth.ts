@@ -49,6 +49,16 @@ export const getAuth = async () => {
       database: mongodbAdapter(db as Parameters<typeof mongodbAdapter>[0]),
       secret: process.env.BETTER_AUTH_SECRET,
       baseURL: baseURL,
+      trustedOrigins: [
+        "http://localhost:3000",
+        "https://stocklytics-stock-tracker-app.vercel.app",
+      ],
+      advanced: {
+        useSecureCookies: process.env.NODE_ENV === "production",
+        crossSubDomainCookies: {
+          enabled: false,
+        },
+      },
       emailAndPassword: {
         enabled: true,
         disableSignUp: false,
