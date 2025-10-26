@@ -10,24 +10,25 @@ import { formatTimeAgo } from "@/lib/utils";
 import { SearchCommand } from "@/components/SearchCommand";
 
 export default async function WatchlistPage() {
-  const authInstance = await auth;
-  const session = await authInstance.api.getSession({
-    headers: await headers(),
-  });
-
-  const watchlist = await getUserWatchlist();
-  const alerts = await getUserAlerts();
-
-  // Get news based on watchlist symbols
-  let news: MarketNewsArticle[] = [];
   try {
-    if (session?.user?.email) {
-      const symbols = await getWatchlistSymbolsByEmail(session.user.email);
-      news = await getNews(symbols.length > 0 ? symbols : undefined);
+    const authInstance = await auth;
+    const session = await authInstance.api.getSession({
+      headers: await headers(),
+    });
+
+    const watchlist = await getUserWatchlist();
+    const alerts = await getUserAlerts();
+
+    // Get news based on watchlist symbols
+    let news: MarketNewsArticle[] = [];
+    try {
+      if (session?.user?.email) {
+        const symbols = await getWatchlistSymbolsByEmail(session.user.email);
+        news = await getNews(symbols.length > 0 ? symbols : undefined);
+      }
+    } catch (error) {
+      console.error("Error fetching news:", error);
     }
-  } catch (error) {
-    console.error("Error fetching news:", error);
-  }
 
   return (
     <div className="space-y-8">
@@ -91,4 +92,17 @@ export default async function WatchlistPage() {
       )}
     </div>
   );
+  } catch (error) {
+    console.error("Watchlist page error:", error);
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <h2 className="text-xl font-semibold text-gray-300 mb-2">
+            Unable to load watchlist
+          </h2>
+          <p className="text-gray-500">Please try again later</p>
+        </div>
+      </div>
+    );
+  }
 }

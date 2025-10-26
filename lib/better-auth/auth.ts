@@ -8,27 +8,46 @@ let authInstance: ReturnType<typeof betterAuth> | null = null;
 export const getAuth = async () => {
   if (authInstance) return authInstance;
 
-  const mongoose = await connectToDatabase();
-  const db = mongoose.connection.db;
+  try {
+    const mongoose = await connectToDatabase();
+    const db = mongoose.connection.db;
 
-  if (!db) throw new Error("Failed to connect to database");
+    if (!db) {
+      console.error("Database connection exists but db is null");
+      throw new Error("Failed to connect to database");
+    }
 
-  authInstance = betterAuth({
-    database: mongodbAdapter(db as Parameters<typeof mongodbAdapter>[0]),
-    secret: process.env.BETTER_AUTH_SECRET,
-    baseURL: process.env.BETTER_AUTH_BASE_URL,
-    emailAndPassword: {
-      enabled: true,
-      disableSignUp: false,
-      requireEmailVerification: false,
-      minPasswordLength: 8,
-      maxPasswordLength: 124,
-      autoSignIn: true,
-    },
-    plugins: [nextCookies()],
-  });
+    if (!process.env.BETTER_AUTH_SECRET) {
+      console.error("BETTER_AUTH_SECRET is not defined");
+      throw new Error("BETTER_AUTH_SECRET is not defined");
+    }
 
-  return authInstance;
+    if (!process.env.BETTER_AUTH_BASE_URL) {
+      console.error("BETTER_AUTH_BASE_URL is not defined");
+      throw new Error("BETTER_AUTH_BASE_URL is not defined");
+    }
+
+    authInstance = betterAuth({
+      database: mongodbAdapter(db as Parameters<typeof mongodbAdapter>[0]),
+      secret: process.env.BETTER_AUTH_SECRET,
+      baseURL: process.env.BETTER_AUTH_BASE_URL,
+      emailAndPassword: {
+        enabled: true,
+        disableSignUp: false,
+        requireEmailVerification: false,
+        minPasswordLength: 8,
+        maxPasswordLength: 124,
+        autoSignIn: true,
+      },
+      plugins: [nextCookies()],
+    });
+
+    console.log("Auth instance created successfully");
+    return authInstance;
+  } catch (error) {
+    console.error("Failed to initialize auth:", error);
+    throw error;
+  }
 };
 
 export const auth = getAuth();
