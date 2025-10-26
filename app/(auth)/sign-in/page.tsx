@@ -27,8 +27,7 @@ function SignIn() {
     const response = await signInWithEmail(data);
     if (response.success) {
       toast.success(response.message);
-      // Use window.location for full page reload to ensure cookies are properly set
-      window.location.href = "/";
+      router.push("/");
     } else {
       toast.error(response.message);
     }
