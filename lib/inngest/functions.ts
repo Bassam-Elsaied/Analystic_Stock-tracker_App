@@ -3,11 +3,17 @@ import {
   NEWS_SUMMARY_EMAIL_PROMPT,
   PERSONALIZED_WELCOME_EMAIL_PROMPT,
 } from "@/lib/inngest/prompts";
-import { sendNewsSummaryEmail, sendWelcomeEmail } from "@/lib/nodemailer";
+import {
+  sendNewsSummaryEmail,
+  sendWelcomeEmail,
+  sendPriceAlertEmail,
+} from "@/lib/nodemailer";
 import { getAllUsersForNewsEmail } from "@/lib/actions/user-action";
 import { getWatchlistSymbolsByEmail } from "@/lib/actions/watchlist.actions";
 import { getNews } from "@/lib/actions/finnhub.actions";
 import { getFormattedTodayDate } from "@/lib/utils";
+import { connectToDatabase } from "@/database/mongoose";
+import { Alert } from "@/database/models/alert.model";
 
 export const sendSignUpEmail = inngest.createFunction(
   { id: "sign-up-email" },
@@ -53,6 +59,180 @@ export const sendSignUpEmail = inngest.createFunction(
     return {
       success: true,
       message: "Welcome email sent successfully",
+    };
+  }
+);
+
+export const checkPriceAlerts = inngest.createFunction(
+  { id: "check-price-alerts" },
+  [{ event: "app/check.price.alerts" }, { cron: "*/15 * * * *" }], // Every 15 minutes
+  async ({ step }) => {
+    // Step #1: Get all active alerts
+    const alerts = await step.run("get-active-alerts", async () => {
+      await connectToDatabase();
+      return await Alert.find({ isActive: true }).lean();
+    });
+
+    if (!alerts || alerts.length === 0) {
+      return { success: false, message: "No active alerts found" };
+    }
+
+    type AlertDocument = {
+      _id: unknown;
+      userId: string;
+      symbol: string;
+      company: string;
+      alertType: "upper" | "lower";
+      threshold: number;
+      isActive: boolean;
+      checkFrequency: "15min" | "30min" | "hourly" | "daily";
+      lastChecked?: Date;
+    };
+
+    // Helper function to check if alert should be checked based on frequency
+    const shouldCheckAlert = (alert: AlertDocument): boolean => {
+      if (!alert.lastChecked) return true; // First time check
+
+      const now = new Date();
+      const lastChecked = new Date(alert.lastChecked);
+      const minutesSinceLastCheck =
+        (now.getTime() - lastChecked.getTime()) / (1000 * 60);
+
+      switch (alert.checkFrequency) {
+        case "15min":
+          return minutesSinceLastCheck >= 15;
+        case "30min":
+          return minutesSinceLastCheck >= 30;
+        case "hourly":
+          return minutesSinceLastCheck >= 60;
+        case "daily":
+          return minutesSinceLastCheck >= 1440; // 24 hours
+        default:
+          return false;
+      }
+    };
+
+    // Step #2: Filter alerts that need to be checked now
+    const alertsToCheck = (alerts as AlertDocument[]).filter((alert) =>
+      shouldCheckAlert(alert)
+    );
+
+    if (alertsToCheck.length === 0) {
+      return {
+        success: true,
+        message: "No alerts need checking at this time",
+        checked: 0,
+      };
+    }
+
+    // Step #3: Group alerts by symbol to minimize API calls
+    const symbolsMap = new Map<string, AlertDocument[]>();
+    alertsToCheck.forEach((alert) => {
+      const existing = symbolsMap.get(alert.symbol) || [];
+      symbolsMap.set(alert.symbol, [...existing, alert]);
+    });
+
+    const FINNHUB_API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+    if (!FINNHUB_API_KEY) {
+      return { success: false, message: "Finnhub API key not configured" };
+    }
+
+    // Step #4: Check prices and trigger alerts
+    const triggeredAlerts = await step.run("check-prices", async () => {
+      const triggered: Array<{
+        alert: AlertDocument;
+        currentPrice: number;
+        userEmail: string;
+      }> = [];
+
+      await connectToDatabase();
+      const mongoose = await connectToDatabase();
+      const db = mongoose.connection.db;
+
+      for (const [symbol, symbolAlerts] of symbolsMap.entries()) {
+        try {
+          // Fetch current price
+          const quoteRes = await fetch(
+            `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`
+          );
+          const quoteData = await quoteRes.json();
+          const currentPrice = quoteData.c;
+
+          if (!currentPrice) continue;
+
+          // Check each alert for this symbol
+          for (const alert of symbolAlerts) {
+            // Update lastChecked for this alert
+            await Alert.findByIdAndUpdate(alert._id, {
+              lastChecked: new Date(),
+            });
+
+            const shouldTrigger =
+              alert.alertType === "upper"
+                ? currentPrice >= alert.threshold
+                : currentPrice <= alert.threshold;
+
+            if (shouldTrigger) {
+              // Get user email
+              const user = await db
+                ?.collection("user")
+                .findOne<{ email?: string }>({ id: alert.userId });
+
+              if (user?.email) {
+                triggered.push({
+                  alert,
+                  currentPrice,
+                  userEmail: user.email,
+                });
+
+                // Update alert status
+                await Alert.findByIdAndUpdate(alert._id, {
+                  lastTriggered: new Date(),
+                  isActive: false, // Deactivate after triggering once
+                });
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`Error checking alerts for ${symbol}:`, error);
+        }
+      }
+
+      return triggered;
+    });
+
+    // Step #5: Send alert emails
+    await step.run("send-alert-emails", async () => {
+      await Promise.all(
+        triggeredAlerts.map(async ({ alert, currentPrice, userEmail }) => {
+          try {
+            await sendPriceAlertEmail({
+              email: userEmail,
+              symbol: alert.symbol,
+              company: alert.company,
+              alertType: alert.alertType,
+              currentPrice,
+              threshold: alert.threshold,
+              timestamp: new Date().toLocaleString("en-US", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              }),
+            });
+          } catch (error) {
+            console.error(
+              `Error sending alert email for ${alert.symbol}:`,
+              error
+            );
+          }
+        })
+      );
+    });
+
+    return {
+      success: true,
+      message: `Checked ${alertsToCheck.length} alerts, triggered ${triggeredAlerts.length}`,
+      checked: alertsToCheck.length,
+      triggered: triggeredAlerts.length,
     };
   }
 );
@@ -118,8 +298,8 @@ export const sendDailyNewsSummary = inngest.createFunction(
           (part && "text" in part ? part.text : null) || "No market news.";
 
         userNewsSummaries.push({ user, newsContent });
-      } catch (e) {
-        console.error("Failed to summarize news for : ", user.email);
+      } catch (error) {
+        console.error("Failed to summarize news for : ", user.email, error);
         userNewsSummaries.push({ user, newsContent: null });
       }
     }

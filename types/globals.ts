@@ -1,3 +1,11 @@
+import type {
+  Control,
+  FieldError,
+  UseFormRegister,
+  RegisterOptions,
+  FieldValues,
+} from "react-hook-form";
+
 declare global {
   type SignInFormData = {
     email: string;
@@ -17,19 +25,19 @@ declare global {
   type CountrySelectProps = {
     name: string;
     label: string;
-    control: Control;
+    control: Control<SignUpFormData>;
     error?: FieldError;
     required?: boolean;
   };
 
-  type FormInputProps = {
+  type FormInputProps<TFormValues extends FieldValues = FieldValues> = {
     name: string;
     label: string;
     placeholder: string;
     type?: string;
-    register: UseFormRegister;
+    register: UseFormRegister<TFormValues>;
     error?: FieldError;
-    validation?: RegisterOptions;
+    validation?: RegisterOptions<TFormValues>;
     disabled?: boolean;
     value?: string;
   };
@@ -44,7 +52,7 @@ declare global {
     label: string;
     placeholder: string;
     options: readonly Option[];
-    control: Control;
+    control: Control<SignUpFormData>;
     error?: FieldError;
     required?: boolean;
   };
@@ -53,12 +61,6 @@ declare global {
     text: string;
     linkText: string;
     href: string;
-  };
-
-  type SearchCommandProps = {
-    renderAs?: "button" | "text";
-    label?: string;
-    initialStocks: StockWithWatchlistStatus[];
   };
 
   type WelcomeEmailData = {
@@ -172,9 +174,11 @@ declare global {
     open?: boolean;
     setOpen?: (open: boolean) => void;
     renderAs?: "button" | "text";
+    label?: string;
     buttonLabel?: string;
     buttonVariant?: "primary" | "secondary";
     className?: string;
+    initialStocks?: StockWithWatchlistStatus[];
   };
 
   type AlertData = {
@@ -183,6 +187,7 @@ declare global {
     alertName: string;
     alertType: "upper" | "lower";
     threshold: string;
+    checkFrequency: "15min" | "30min" | "hourly" | "daily";
   };
 
   type AlertModalProps = {
@@ -214,6 +219,10 @@ declare global {
     alertType: "upper" | "lower";
     threshold: number;
     changePercent?: number;
+    isActive: boolean;
+    checkFrequency: "15min" | "30min" | "hourly" | "daily";
+    lastChecked?: Date;
+    lastTriggered?: Date;
   };
 }
 

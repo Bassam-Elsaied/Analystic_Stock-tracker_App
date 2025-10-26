@@ -6,14 +6,17 @@ import {
   CommandInput,
   CommandList,
   CommandEmpty,
-  CommandGroup,
-  CommandItem,
 } from "@/components/ui/command";
 import { Button } from "./ui/button";
-import { Loader2, Star, TrendingUp } from "lucide-react";
+import { Loader2, Star, StarOff, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { searchStocks } from "@/lib/actions/finnhub.actions";
+import {
+  addToWatchlist,
+  removeFromWatchlist,
+} from "@/lib/actions/watchlist.actions";
 import { useDebounce } from "@/hooks/useDebunce";
+import { toast } from "sonner";
 
 export function SearchCommand({
   renderAs = "button",
@@ -66,6 +69,45 @@ export function SearchCommand({
     setStocks(initialStocks);
   };
 
+  const handleToggleWatchlist = async (
+    e: React.MouseEvent,
+    stock: StockWithWatchlistStatus
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      if (stock.isInWatchlist) {
+        const result = await removeFromWatchlist(stock.symbol);
+        if (result.success) {
+          toast.success(`${stock.symbol} removed from watchlist`);
+          setStocks((prev) =>
+            prev.map((s) =>
+              s.symbol === stock.symbol ? { ...s, isInWatchlist: false } : s
+            )
+          );
+        } else {
+          toast.error(result.message || "Failed to remove from watchlist");
+        }
+      } else {
+        const result = await addToWatchlist(stock.symbol, stock.name);
+        if (result.success) {
+          toast.success(`${stock.symbol} added to watchlist`);
+          setStocks((prev) =>
+            prev.map((s) =>
+              s.symbol === stock.symbol ? { ...s, isInWatchlist: true } : s
+            )
+          );
+        } else {
+          toast.error(result.message || "Failed to add to watchlist");
+        }
+      }
+    } catch (error) {
+      toast.error("An error occurred");
+      console.error("Error toggling watchlist:", error);
+    }
+  };
+
   return (
     <>
       {renderAs === "text" ? (
@@ -107,7 +149,7 @@ export function SearchCommand({
                 {` `}
                 {displayStocks?.length || 0}
               </div>
-              {displayStocks?.map((stock, i) => (
+              {displayStocks?.map((stock) => (
                 <li key={stock.symbol} className="search-item">
                   <Link
                     href={`/stocks/${stock.symbol}`}
@@ -121,7 +163,21 @@ export function SearchCommand({
                         {stock.symbol} | {stock.exchange} | {stock.type}
                       </div>
                     </div>
-                    <Star />
+                    <button
+                      onClick={(e) => handleToggleWatchlist(e, stock)}
+                      className="p-2 hover:bg-gray-700 rounded-md transition-colors"
+                      aria-label={
+                        stock.isInWatchlist
+                          ? "Remove from watchlist"
+                          : "Add to watchlist"
+                      }
+                    >
+                      {stock.isInWatchlist ? (
+                        <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      ) : (
+                        <StarOff className="w-5 h-5 text-gray-400" />
+                      )}
+                    </button>
                   </Link>
                 </li>
               ))}

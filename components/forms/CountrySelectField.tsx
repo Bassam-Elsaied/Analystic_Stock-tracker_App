@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Label } from "../ui/label";
-import { Controller } from "react-hook-form";
+import { Controller, Path } from "react-hook-form";
 import {
   Popover,
   PopoverContent,
@@ -70,7 +70,7 @@ function CountrySelectField({
       </Label>
       <Controller
         control={control}
-        name={name}
+        name={name as Path<SignUpFormData>}
         rules={{
           required: required ? `Please select ${label.toLowerCase()}` : false,
         }}

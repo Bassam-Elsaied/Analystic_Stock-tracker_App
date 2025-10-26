@@ -1,7 +1,7 @@
 export const navItems = [
   { href: "/", label: "Dashboard" },
   { href: "/search", label: "Search" },
-  // { href: '/watchlist', label: 'Watchlist' },
+  { href: "/watchlist", label: "Watchlist" },
 ];
 
 // Sign-up form select options
@@ -29,6 +29,13 @@ export const PREFERRED_INDUSTRIES = [
 export const ALERT_TYPE_OPTIONS = [
   { value: "upper", label: "Upper" },
   { value: "lower", label: "Lower" },
+];
+
+export const CHECK_FREQUENCY_OPTIONS = [
+  { value: "15min", label: "Every 15 minutes" },
+  { value: "30min", label: "Every 30 minutes" },
+  { value: "hourly", label: "Every hour" },
+  { value: "daily", label: "Once daily" },
 ];
 
 export const CONDITION_OPTIONS = [
