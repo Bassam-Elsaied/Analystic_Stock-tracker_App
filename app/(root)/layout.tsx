@@ -3,6 +3,9 @@ import { auth } from "@/lib/better-auth/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = "force-dynamic";
+
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   const authInstance = await auth;
   const session = await authInstance.api.getSession({

@@ -4,6 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = "force-dynamic";
+
 async function layout({ children }: { children: React.ReactNode }) {
   const authInstance = await auth;
   const session = await authInstance.api.getSession({
