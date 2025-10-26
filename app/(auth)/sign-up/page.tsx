@@ -41,7 +41,12 @@ function SignUp() {
       const response = await signUpWithEmail(data);
       if (response.success) {
         toast.success(response.message);
-        router.push("/");
+        // Refresh the router to update session state
+        router.refresh();
+        // Small delay to ensure session is updated
+        setTimeout(() => {
+          router.push("/");
+        }, 100);
       } else {
         toast.error(response.message);
       }

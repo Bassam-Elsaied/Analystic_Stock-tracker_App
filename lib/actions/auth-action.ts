@@ -16,6 +16,7 @@ export const signUpWithEmail = async (data: SignUpFormData) => {
         password: data.password,
         name: data.fullName,
       },
+      headers: await headers(),
     });
 
     console.log("Sign up response received:", response);
@@ -98,9 +99,17 @@ export const signInWithEmail = async (data: SignInFormData) => {
         email: data.email,
         password: data.password,
       },
+      headers: await headers(),
     });
 
     console.log("Sign in response received:", response);
+
+    if (!response) {
+      return {
+        success: false,
+        message: "Invalid email or password. Please try again.",
+      };
+    }
 
     return {
       success: true,
@@ -122,7 +131,8 @@ export const signInWithEmail = async (data: SignInFormData) => {
 
     if (
       errorMessage.includes("credentials") ||
-      errorMessage.includes("Invalid")
+      errorMessage.includes("Invalid") ||
+      errorMessage.includes("password")
     ) {
       return {
         success: false,
