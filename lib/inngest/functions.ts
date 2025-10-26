@@ -14,6 +14,7 @@ import { getNews } from "@/lib/actions/finnhub.actions";
 import { getFormattedTodayDate } from "@/lib/utils";
 import { connectToDatabase } from "@/database/mongoose";
 import { Alert } from "@/database/models/alert.model";
+import { checkEmailSubscription } from "@/lib/actions/email-preferences.actions";
 
 export const sendSignUpEmail = inngest.createFunction(
   { id: "sign-up-email" },
@@ -47,13 +48,27 @@ export const sendSignUpEmail = inngest.createFunction(
       const part = response.candidates?.[0]?.content?.parts?.[0];
       const introText =
         (part && "text" in part ? part.text : null) ||
-        "Thanks for joining Signalist. You now have the tools to track markets and make smarter moves.";
+        "Thanks for joining analystic. You now have the tools to track markets and make smarter moves.";
 
       const {
-        data: { email, name },
+        data: { userId, email, name },
       } = event;
 
-      return await sendWelcomeEmail(email, name, introText);
+      // Check if user is subscribed to welcome emails
+      const isSubscribed = await checkEmailSubscription(
+        userId,
+        "welcomeEmails"
+      );
+
+      if (!isSubscribed) {
+        console.log(`User ${email} is unsubscribed from welcome emails`);
+        return {
+          skipped: true,
+          reason: "User unsubscribed from welcome emails",
+        };
+      }
+
+      return await sendWelcomeEmail(email, name, introText, userId);
     });
 
     return {
@@ -179,17 +194,29 @@ export const checkPriceAlerts = inngest.createFunction(
                 .findOne<{ email?: string }>({ id: alert.userId });
 
               if (user?.email) {
-                triggered.push({
-                  alert,
-                  currentPrice,
-                  userEmail: user.email,
-                });
+                // Check if user is subscribed to price alerts
+                const isSubscribed = await checkEmailSubscription(
+                  alert.userId,
+                  "priceAlerts"
+                );
 
-                // Update alert status
-                await Alert.findByIdAndUpdate(alert._id, {
-                  lastTriggered: new Date(),
-                  isActive: false, // Deactivate after triggering once
-                });
+                if (isSubscribed) {
+                  triggered.push({
+                    alert,
+                    currentPrice,
+                    userEmail: user.email,
+                  });
+
+                  // Update alert status
+                  await Alert.findByIdAndUpdate(alert._id, {
+                    lastTriggered: new Date(),
+                    isActive: false, // Deactivate after triggering once
+                  });
+                } else {
+                  console.log(
+                    `User ${alert.userId} is unsubscribed from price alerts`
+                  );
+                }
               }
             }
           }
@@ -217,6 +244,7 @@ export const checkPriceAlerts = inngest.createFunction(
                 dateStyle: "medium",
                 timeStyle: "short",
               }),
+              userId: alert.userId,
             });
           } catch (error) {
             console.error(
@@ -310,10 +338,22 @@ export const sendDailyNewsSummary = inngest.createFunction(
         userNewsSummaries.map(async ({ user, newsContent }) => {
           if (!newsContent) return false;
 
+          // Check if user is subscribed to news emails
+          const isSubscribed = await checkEmailSubscription(
+            user.id,
+            "newsEmails"
+          );
+
+          if (!isSubscribed) {
+            console.log(`User ${user.email} is unsubscribed from news emails`);
+            return false;
+          }
+
           return await sendNewsSummaryEmail({
             email: user.email,
             date: getFormattedTodayDate(),
             newsContent,
+            userId: user.id,
           });
         })
       );

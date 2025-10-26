@@ -17,16 +17,23 @@ export const transporter = nodemailer.createTransport({
 export const sendWelcomeEmail = async (
   email: string,
   name: string,
-  intro: string
+  intro: string,
+  userId?: string
 ) => {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const unsubscribeUrl = userId
+    ? `${baseUrl}/unsubscribe?userId=${userId}&type=welcomeEmails`
+    : `${baseUrl}/unsubscribe`;
+  const dashboardUrl = `${baseUrl}`;
+
   const mailOptions = {
-    from: `"Signalist" <signalist@gmail.com>`,
+    from: `"analystic" <analystic@gmail.com>`,
     to: email,
-    subject: "Welcome to Signalist",
-    html: WELCOME_EMAIL_TEMPLATE.replace("{{name}}", name).replace(
-      "{{intro}}",
-      intro
-    ),
+    subject: "Welcome to analystic",
+    html: WELCOME_EMAIL_TEMPLATE.replace("{{name}}", name)
+      .replace("{{intro}}", intro)
+      .replace(/{{unsubscribeUrl}}/g, unsubscribeUrl)
+      .replace(/{{dashboardUrl}}/g, dashboardUrl),
   };
 
   await transporter.sendMail(mailOptions);
@@ -36,21 +43,29 @@ export const sendNewsSummaryEmail = async ({
   email,
   date,
   newsContent,
+  userId,
 }: {
   email: string;
   date: string;
   newsContent: string;
+  userId?: string;
 }): Promise<void> => {
-  const htmlTemplate = NEWS_SUMMARY_EMAIL_TEMPLATE.replace(
-    "{{date}}",
-    date
-  ).replace("{{newsContent}}", newsContent);
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const unsubscribeUrl = userId
+    ? `${baseUrl}/unsubscribe?userId=${userId}&type=newsEmails`
+    : `${baseUrl}/unsubscribe`;
+  const dashboardUrl = `${baseUrl}`;
+
+  const htmlTemplate = NEWS_SUMMARY_EMAIL_TEMPLATE.replace("{{date}}", date)
+    .replace("{{newsContent}}", newsContent)
+    .replace(/{{unsubscribeUrl}}/g, unsubscribeUrl)
+    .replace(/{{dashboardUrl}}/g, dashboardUrl);
 
   const mailOptions = {
-    from: `"Signalist News" <signalist@gmail.com>`,
+    from: `"analystic News" <analystic@gmail.com>`,
     to: email,
     subject: `📈 Market News Summary Today - ${date}`,
-    text: `Today's market news summary from Signalist`,
+    text: `Today's market news summary from analystic`,
     html: htmlTemplate,
   };
 
@@ -65,6 +80,7 @@ export const sendPriceAlertEmail = async ({
   currentPrice,
   threshold,
   timestamp,
+  userId,
 }: {
   email: string;
   symbol: string;
@@ -73,7 +89,14 @@ export const sendPriceAlertEmail = async ({
   currentPrice: number;
   threshold: number;
   timestamp: string;
+  userId?: string;
 }): Promise<void> => {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const unsubscribeUrl = userId
+    ? `${baseUrl}/unsubscribe?userId=${userId}&type=priceAlerts`
+    : `${baseUrl}/unsubscribe`;
+  const dashboardUrl = `${baseUrl}`;
+
   const template =
     alertType === "upper"
       ? STOCK_ALERT_UPPER_EMAIL_TEMPLATE
@@ -84,13 +107,15 @@ export const sendPriceAlertEmail = async ({
     .replace(/{{company}}/g, company)
     .replace(/{{currentPrice}}/g, `$${currentPrice.toFixed(2)}`)
     .replace(/{{targetPrice}}/g, `$${threshold.toFixed(2)}`)
-    .replace(/{{timestamp}}/g, timestamp);
+    .replace(/{{timestamp}}/g, timestamp)
+    .replace(/{{unsubscribeUrl}}/g, unsubscribeUrl)
+    .replace(/{{dashboardUrl}}/g, dashboardUrl);
 
   const emoji = alertType === "upper" ? "📈" : "📉";
   const actionText = alertType === "upper" ? "Above" : "Below";
 
   const mailOptions = {
-    from: `"Signalist Alerts" <signalist@gmail.com>`,
+    from: `"analystic Alerts" <analystic@gmail.com>`,
     to: email,
     subject: `${emoji} Price Alert: ${symbol} ${actionText} $${threshold.toFixed(
       2

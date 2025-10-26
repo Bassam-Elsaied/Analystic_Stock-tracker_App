@@ -114,22 +114,22 @@
 
 /* === CUSTOM COLOR THEME === */
 @theme {
-  /* Extended Gray Scale */
-  --color-gray-900: #050505;
-  --color-gray-800: #141414;
-  --color-gray-700: #212328;
-  --color-gray-600: #30333a;
-  --color-gray-500: #9095a1;
-  --color-gray-400: #ccdadc;
+  /* Modern Dark Blue Scale */
+  --color-gray-900: #0a0e27;
+  --color-gray-800: #1a1f3a;
+  --color-gray-700: #252b4a;
+  --color-gray-600: #333d5c;
+  --color-gray-500: #7c88b0;
+  --color-gray-400: #c8d1e8;
 
-  /* Vibrant Colors */
-  --color-blue-600: #5862ff;
-  --color-yellow-400: #fdd458;
-  --color-yellow-500: #e8ba40;
-  --color-teal-400: #0fedbe;
-  --color-red-500: #ff495b;
-  --color-orange-500: #ff8243;
-  --color-purple-500: #d13bff;
+  /* Vibrant Modern Colors */
+  --color-blue-600: #6366f1;
+  --color-yellow-400: #14f1d7;
+  --color-yellow-500: #0dd6be;
+  --color-teal-400: #14f1d7;
+  --color-red-500: #f43f5e;
+  --color-orange-500: #fb923c;
+  --color-purple-500: #a855f7;
 }
 
 @layer base {
@@ -391,29 +391,29 @@
 /* TradingView Advanced Chart Widget Styles */
 .tradingview-widget-container {
   position: relative;
-  background-color: #141414 !important;
+  background-color: #1a1f3a !important;
   border-radius: 8px !important;
   overflow: hidden !important;
 }
 
 .tv-embed-widget-wrapper__body {
-  background-color: #141414 !important;
+  background-color: #1a1f3a !important;
 }
 
 .tradingview-widget-container__widget {
-  background-color: #141414 !important;
+  background-color: #1a1f3a !important;
   height: 100% !important;
 }
 
 .widget-stock-heatmap-container .screenerMapWrapper-BBVfGP0b {
   overflow: hidden !important;
-  background: #141414 !important;
-  background-color: #141414 !important;
+  background: #1a1f3a !important;
+  background-color: #1a1f3a !important;
 }
 
 .canvasContainer-tyaAU8aH {
-  background: #141414 !important;
-  background-color: #141414 !important;
+  background: #1a1f3a !important;
+  background-color: #1a1f3a !important;
 }
 
 .tv-site-widget--bg_none {
@@ -422,35 +422,35 @@
 
 .tradingview-widget-copyright {
   font-size: 11px;
-  color: #9ca3af;
+  color: #7c88b0;
   text-align: center;
   padding: 4px 0;
   background-color: transparent;
 }
 
 .tradingview-widget-copyright a {
-  color: #60a5fa;
+  color: #6366f1;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .tradingview-widget-copyright a:hover {
-  color: #93c5fd;
+  color: #a855f7;
   text-decoration: underline;
 }
 
 .tv-embed-widget-wrapper .tv-embed-widget-wrapper__body {
-  background: #141414 !important;
-  background-color: #141414 !important;
+  background: #1a1f3a !important;
+  background-color: #1a1f3a !important;
 }
 
 .tradingview-widget-container iframe {
-  background-color: #141414 !important;
+  background-color: #1a1f3a !important;
   width: 100% !important;
 }
 
 .custom-chart.tradingview-widget-container iframe {
-  border: 1px solid #30333a;
+  border: 1px solid #333d5c;
   border-radius: 8px !important;
   overflow: hidden !important;
 }
@@ -476,13 +476,13 @@
 }
 
 .scrollbar-hide-default:hover {
-  scrollbar-color: #30333a transparent;
+  scrollbar-color: #333d5c transparent;
 }
 
 .scrollbar-hide-default:hover::-webkit-scrollbar-thumb {
-  background-color: #30333a;
+  background-color: #333d5c;
 }
 
 .scrollbar-hide-default::-webkit-scrollbar-thumb:hover {
-  background-color: #9095a1;
+  background-color: #7c88b0;
 }

@@ -11,9 +11,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Trash2, Settings } from "lucide-react";
 import NavItems from "@/components/NavItems";
 import { signOut } from "@/lib/actions/auth-action";
+import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import { useState } from "react";
 
 const UserDropdown = ({
   user,
@@ -23,6 +25,7 @@ const UserDropdown = ({
   initialStocks: StockWithWatchlistStatus[];
 }) => {
   const router = useRouter();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -66,7 +69,18 @@ const UserDropdown = ({
             </div>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-gray-600 sm:hidden" />
+        <nav className="sm:hidden">
+          <NavItems initialStocks={initialStocks} />
+        </nav>
         <DropdownMenuSeparator className="bg-gray-600" />
+        <DropdownMenuItem
+          onClick={() => router.push("/settings")}
+          className="text-gray-400 text-md font-medium focus:bg-transparent focus:text-yellow-500 hover:text-yellow-500 transition-colors cursor-pointer"
+        >
+          <Settings className="h-4 w-4 mr-2 hidden sm:block" />
+          Settings
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={handleSignOut}
           className="text-gray-100 text-md font-medium focus:bg-transparent focus:text-yellow-500 transition-colors cursor-pointer"
@@ -74,11 +88,19 @@ const UserDropdown = ({
           <LogOut className="h-4 w-4 mr-2 hidden sm:block" />
           Logout
         </DropdownMenuItem>
-
-        <nav className="sm:hidden">
-          <NavItems initialStocks={initialStocks} />
-        </nav>
+        <DropdownMenuItem
+          onClick={() => setDeleteDialogOpen(true)}
+          className="text-red-400 text-md font-medium focus:bg-transparent focus:text-red-500 transition-colors cursor-pointer"
+        >
+          <Trash2 className="h-4 w-4 mr-2 hidden sm:block" />
+          Delete Account
+        </DropdownMenuItem>
       </DropdownMenuContent>
+      <DeleteAccountDialog
+        open={deleteDialogOpen}
+        setOpen={setDeleteDialogOpen}
+        userEmail={user.email}
+      />
     </DropdownMenu>
   );
 };

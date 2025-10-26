@@ -95,7 +95,7 @@ export const MARKET_OVERVIEW_WIDGET_CONFIG = {
     },
   ],
   support_host: "https://www.tradingview.com", // TradingView host
-  backgroundColor: "#141414", // background color
+  backgroundColor: "#1a1f3a", // background color
   width: "100%", // full width
   height: 600, // height in px
   showSymbolLogo: true, // show logo next to symbols
@@ -140,7 +140,7 @@ export const MARKET_DATA_WIDGET_CONFIG = {
   showSymbolLogo: true,
   colorTheme: "dark",
   isTransparent: false,
-  backgroundColor: "#0F0F0F",
+  backgroundColor: "#1a1f3a",
   symbolsGroups: [
     {
       name: "Financial",
@@ -202,8 +202,8 @@ export const CANDLE_CHART_WIDGET_CONFIG = (symbol: string) => ({
   symbol: symbol.toUpperCase(),
   theme: "dark",
   timezone: "Etc/UTC",
-  backgroundColor: "#141414",
-  gridColor: "#141414",
+  backgroundColor: "#1a1f3a",
+  gridColor: "#1a1f3a",
   watchlist: [],
   withdateranges: false,
   compareSymbols: [],
@@ -228,8 +228,8 @@ export const BASELINE_WIDGET_CONFIG = (symbol: string) => ({
   symbol: symbol.toUpperCase(),
   theme: "dark",
   timezone: "Etc/UTC",
-  backgroundColor: "#141414",
-  gridColor: "#141414",
+  backgroundColor: "#1a1f3a",
+  gridColor: "#1a1f3a",
   watchlist: [],
   withdateranges: false,
   compareSymbols: [],

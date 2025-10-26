@@ -17,10 +17,10 @@ async function layout({ children }: { children: React.ReactNode }) {
         <Link href="/" className="auth-logo">
           <Image
             src="/assets/images/logo.png"
-            alt="Signalist"
+            alt="analystic"
             width={140}
             height={32}
-            className="h-8 w-auto cursor-pointer"
+            className="cursor-pointer"
           />
         </Link>
         <div className="pb-6 lg:pb-8 flex-1">{children}</div>
@@ -28,7 +28,7 @@ async function layout({ children }: { children: React.ReactNode }) {
       <section className="auth-right-section">
         <div className="z-10 relative lg:mt-4 lg:mb-16">
           <blockquote className="auth-blockquote">
-            Signalist turned my watchlist into a winning list. The alerts are
+            analystic turned my watchlist into a winning list. The alerts are
             spot-on, and I feel more confident making moves in the market
           </blockquote>
           <div className="flex items-center justify-between ">
@@ -54,7 +54,7 @@ async function layout({ children }: { children: React.ReactNode }) {
         <div className="flex-1 relative">
           <Image
             src="/assets/images/dashboard.png"
-            alt="Signalist"
+            alt="analystic"
             width={1440}
             height={1150}
             className="auth-dashboard-preview absolute top-0"

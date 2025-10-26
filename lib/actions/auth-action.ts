@@ -15,9 +15,13 @@ export const signUpWithEmail = async (data: SignUpFormData) => {
       },
     });
     if (respone) {
+      // Get userId from response
+      const userId = (respone as { user?: { id?: string } })?.user?.id || "";
+
       await inngest.send({
         name: "app/user.created",
         data: {
+          userId,
           email: data.email,
           name: data.fullName,
           country: data.country,
@@ -32,7 +36,7 @@ export const signUpWithEmail = async (data: SignUpFormData) => {
       message: "Sign up with email successful",
       data: respone,
     };
-  } catch (error) {
+  } catch {
     console.log(`Error signing up with email`);
     return {
       success: false,

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Signalist",
+  title: "analystic",
   description:
     "Real-time stock market analytics . Monitor market trends, analyze stock performance, and make informed investment decisions with comprehensive market data and advanced analytics tools.",
 };
