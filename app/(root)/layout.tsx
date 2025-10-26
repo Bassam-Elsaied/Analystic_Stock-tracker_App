@@ -7,37 +7,35 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
+  let session = null;
+  let authError = false;
+
   try {
     const authInstance = await auth;
-    const session = await authInstance.api.getSession({
+    session = await authInstance.api.getSession({
       headers: await headers(),
     });
-
-    if (!session?.user) {
-      redirect("/sign-in");
-    }
-
-    const user = {
-      id: session.user.id,
-      name: session.user.name,
-      email: session.user.email,
-    };
-
-    return (
-      <main className="min-h-screen text-gray-400">
-        <Header user={user} />
-
-        <div className="container py-10">{children}</div>
-      </main>
-    );
   } catch (error) {
-    // Re-throw redirect errors (they're not actual errors)
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      throw error;
-    }
-    
     console.error("Root layout error:", error);
+    authError = true;
+  }
+
+  if (authError || !session?.user) {
     redirect("/sign-in");
   }
+
+  const user = {
+    id: session.user.id,
+    name: session.user.name,
+    email: session.user.email,
+  };
+
+  return (
+    <main className="min-h-screen text-gray-400">
+      <Header user={user} />
+
+      <div className="container py-10">{children}</div>
+    </main>
+  );
 };
 export default Layout;

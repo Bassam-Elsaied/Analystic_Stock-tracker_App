@@ -8,19 +8,23 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 async function layout({ children }: { children: React.ReactNode }) {
+  let shouldRedirect = false;
+
   try {
     const authInstance = await auth;
     const session = await authInstance.api.getSession({
       headers: await headers(),
     });
-    if (session?.user) redirect("/");
-  } catch (error) {
-    // Re-throw redirect errors (they're not actual errors)
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      throw error;
+    if (session?.user) {
+      shouldRedirect = true;
     }
+  } catch (error) {
     console.error("Auth layout error:", error);
     // Allow rendering even if auth check fails
+  }
+
+  if (shouldRedirect) {
+    redirect("/");
   }
 
   return (
