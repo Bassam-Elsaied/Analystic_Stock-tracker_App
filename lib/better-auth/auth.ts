@@ -31,14 +31,15 @@ export const getAuth = async () => {
     // Use environment variable or default to localhost for development
     const baseURL =
       process.env.BETTER_AUTH_BASE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
       (process.env.NODE_ENV === "development"
         ? "http://localhost:3000"
-        : undefined);
+        : "https://stocklytics-stock-tracker-app.vercel.app");
 
     if (!baseURL) {
-      console.error("❌ BETTER_AUTH_BASE_URL is not defined for production");
+      console.error("❌ BETTER_AUTH_BASE_URL is not defined");
       throw new Error(
-        "BETTER_AUTH_BASE_URL is required for production environment"
+        "BETTER_AUTH_BASE_URL is required. Set it in your environment variables."
       );
     }
 
