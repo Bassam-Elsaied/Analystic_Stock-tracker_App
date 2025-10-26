@@ -20,7 +20,7 @@ export const sendWelcomeEmail = async (
   intro: string,
   userId?: string
 ) => {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const unsubscribeUrl = userId
     ? `${baseUrl}/unsubscribe?userId=${userId}&type=welcomeEmails`
     : `${baseUrl}/unsubscribe`;
@@ -50,7 +50,7 @@ export const sendNewsSummaryEmail = async ({
   newsContent: string;
   userId?: string;
 }): Promise<void> => {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const unsubscribeUrl = userId
     ? `${baseUrl}/unsubscribe?userId=${userId}&type=newsEmails`
     : `${baseUrl}/unsubscribe`;
@@ -91,7 +91,7 @@ export const sendPriceAlertEmail = async ({
   timestamp: string;
   userId?: string;
 }): Promise<void> => {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const unsubscribeUrl = userId
     ? `${baseUrl}/unsubscribe?userId=${userId}&type=priceAlerts`
     : `${baseUrl}/unsubscribe`;

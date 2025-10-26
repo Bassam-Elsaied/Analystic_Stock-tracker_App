@@ -6,19 +6,25 @@ import { nextCookies } from "better-auth/next-js";
 let authInstance: ReturnType<typeof betterAuth> | null = null;
 
 export const getAuth = async () => {
-  if (authInstance) return authInstance;
+  if (authInstance) {
+    console.log("Using cached auth instance");
+    return authInstance;
+  }
 
   try {
+    console.log("🔐 Initializing Better Auth...");
     const mongoose = await connectToDatabase();
     const db = mongoose.connection.db;
 
     if (!db) {
-      console.error("Database connection exists but db is null");
+      console.error("❌ Database connection exists but db is null");
       throw new Error("Failed to connect to database");
     }
 
+    console.log("✅ Database connection verified");
+
     if (!process.env.BETTER_AUTH_SECRET) {
-      console.error("BETTER_AUTH_SECRET is not defined");
+      console.error("❌ BETTER_AUTH_SECRET is not defined");
       throw new Error("BETTER_AUTH_SECRET is not defined");
     }
 
@@ -30,11 +36,13 @@ export const getAuth = async () => {
         : undefined);
 
     if (!baseURL) {
-      console.error("BETTER_AUTH_BASE_URL is not defined for production");
+      console.error("❌ BETTER_AUTH_BASE_URL is not defined for production");
       throw new Error(
         "BETTER_AUTH_BASE_URL is required for production environment"
       );
     }
+
+    console.log(`✅ Better Auth Base URL: ${baseURL}`);
 
     authInstance = betterAuth({
       database: mongodbAdapter(db as Parameters<typeof mongodbAdapter>[0]),
@@ -51,10 +59,15 @@ export const getAuth = async () => {
       plugins: [nextCookies()],
     });
 
-    console.log("Auth instance created successfully");
+    console.log("✅ Better Auth instance created successfully");
     return authInstance;
   } catch (error) {
-    console.error("Failed to initialize auth:", error);
+    console.error("❌ Failed to initialize auth:", error);
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     throw error;
   }
 };

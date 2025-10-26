@@ -21,23 +21,35 @@ export const connectToDatabase = async () => {
     throw new Error("MONGODB_URI is not defined");
   }
 
-  if (cached.conn) return cached.conn;
+  if (cached.conn) {
+    console.log("Using cached database connection");
+    return cached.conn;
+  }
 
   if (!cached.promise) {
+    console.log("Creating new database connection...");
     cached.promise = mongoose.connect(MONGODB_URI, {
       bufferCommands: false,
       serverSelectionTimeoutMS: 10000,
+      maxPoolSize: 10,
+      minPoolSize: 2,
     });
   }
 
   try {
     cached.conn = await cached.promise;
     console.log(
-      `Connected to database ${process.env.NODE_ENV} - Connection successful`
+      `✅ Connected to database - Environment: ${process.env.NODE_ENV}`
     );
+    console.log(`Database name: ${cached.conn.connection.db?.databaseName}`);
+    console.log(`Connection state: ${cached.conn.connection.readyState}`);
   } catch (error) {
     cached.promise = null;
-    console.error("Failed to connect to database:", error);
+    console.error("❌ Failed to connect to database:", error);
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+    }
     throw error;
   }
 

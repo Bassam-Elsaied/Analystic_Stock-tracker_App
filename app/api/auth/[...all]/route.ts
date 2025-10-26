@@ -12,4 +12,3 @@ export const POST = async (request: Request) => {
   const handlers = toNextJsHandler(authInstance);
   return handlers.POST(request);
 };
-
