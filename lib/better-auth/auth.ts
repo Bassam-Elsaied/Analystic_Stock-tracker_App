@@ -22,15 +22,24 @@ export const getAuth = async () => {
       throw new Error("BETTER_AUTH_SECRET is not defined");
     }
 
-    if (!process.env.BETTER_AUTH_BASE_URL) {
-      console.error("BETTER_AUTH_BASE_URL is not defined");
-      throw new Error("BETTER_AUTH_BASE_URL is not defined");
+    // Use environment variable or default to localhost for development
+    const baseURL =
+      process.env.BETTER_AUTH_BASE_URL ||
+      (process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : undefined);
+
+    if (!baseURL) {
+      console.error("BETTER_AUTH_BASE_URL is not defined for production");
+      throw new Error(
+        "BETTER_AUTH_BASE_URL is required for production environment"
+      );
     }
 
     authInstance = betterAuth({
       database: mongodbAdapter(db as Parameters<typeof mongodbAdapter>[0]),
       secret: process.env.BETTER_AUTH_SECRET,
-      baseURL: process.env.BETTER_AUTH_BASE_URL,
+      baseURL: baseURL,
       emailAndPassword: {
         enabled: true,
         disableSignUp: false,
